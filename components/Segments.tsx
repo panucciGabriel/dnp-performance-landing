@@ -1,8 +1,5 @@
 import { ArrowRight } from "lucide-react";
-
-const WA_URL = `https://wa.me/5518991636818?text=${encodeURIComponent(
-  "Olá! Gostaria de solicitar um orçamento pela DNP Performance."
-)}`;
+import { WA_URL } from "@/lib/constants";
 
 const segments = [
   {

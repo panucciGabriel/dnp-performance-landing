@@ -1,4 +1,5 @@
 import { MessageCircle, Search, Cpu, CheckCircle } from "lucide-react";
+import AnimateIn from "@/components/AnimateIn";
 
 const steps = [
   {
@@ -27,7 +28,7 @@ const steps = [
     icon: CheckCircle,
     title: "ENTREGA",
     description:
-      "Você recebe notificação no WhatsApp quando seu veículo estiver pronto. Satisfação garantida.",
+      "Você recebe notificação no WhatsApp quando o serviço estiver concluído. Satisfação garantida.",
   },
 ];
 
@@ -36,62 +37,55 @@ export default function HowItWorks() {
     <section id="como-funciona" className="py-24 bg-[#111]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Cabeçalho */}
-        <div className="text-center mb-16">
-          <span className="text-[#c41212] text-xl">✦</span>
-          <h2
-            className="text-5xl sm:text-6xl lg:text-7xl text-white mt-2 mb-4"
-            style={{ fontFamily: "var(--font-bebas)" }}
-          >
-            COMO <span className="text-[#c41212]">FUNCIONA</span>
-          </h2>
-          <p className="text-[#666] text-sm">
-            Do primeiro contato até a entrega — simples e transparente.
-          </p>
-        </div>
+        <AnimateIn>
+          <div className="text-center mb-16">
+            <span className="text-[#c41212] text-xl">✦</span>
+            <h2
+              className="text-5xl sm:text-6xl lg:text-7xl text-white mt-2 mb-4"
+              style={{ fontFamily: "var(--font-bebas)" }}
+            >
+              COMO <span className="text-[#c41212]">FUNCIONA</span>
+            </h2>
+            <p className="text-[#666] text-sm">
+              Do primeiro contato até a entrega — simples e transparente.
+            </p>
+          </div>
+        </AnimateIn>
 
-        {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0">
+        {/* Grid de steps — gap-px cria divisórias automáticas em todos os breakpoints */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[#1f1f1f] border border-[#1f1f1f]">
           {steps.map((step, index) => {
             const Icon = step.icon;
-            const isLast = index === steps.length - 1;
             return (
-              <div key={step.number} className="relative flex flex-col items-start p-8">
-                {/* Linha conectora (desktop) */}
-                {!isLast && (
-                  <div className="hidden lg:block absolute top-[4.5rem] right-0 w-px h-8 bg-[#1f1f1f] translate-x-1/2" />
-                )}
+              <AnimateIn key={step.number} delay={index * 100}>
+                <div className="bg-[#111] hover:bg-[#161616] transition-colors duration-200 flex flex-col items-start p-8 h-full">
+                  {/* Número */}
+                  <span
+                    className="text-6xl text-[#1f1f1f] leading-none mb-4 select-none"
+                    style={{ fontFamily: "var(--font-bebas)" }}
+                  >
+                    {step.number}
+                  </span>
 
-                {/* Número */}
-                <span
-                  className="text-6xl text-[#1f1f1f] leading-none mb-4 select-none"
-                  style={{ fontFamily: "var(--font-bebas)" }}
-                >
-                  {step.number}
-                </span>
+                  {/* Ícone */}
+                  <div className="w-12 h-12 rounded border border-[#c41212]/40 flex items-center justify-center mb-5 bg-[#c41212]/5 shrink-0">
+                    <Icon size={22} className="text-[#c41212]" />
+                  </div>
 
-                {/* Ícone */}
-                <div className="w-12 h-12 rounded border border-[#c41212]/40 flex items-center justify-center mb-5 bg-[#c41212]/5">
-                  <Icon size={22} className="text-[#c41212]" />
+                  {/* Título */}
+                  <h3
+                    className="text-2xl text-white mb-3"
+                    style={{ fontFamily: "var(--font-bebas)" }}
+                  >
+                    {step.title}
+                  </h3>
+
+                  {/* Descrição */}
+                  <p className="text-sm text-[#666] leading-relaxed">
+                    {step.description}
+                  </p>
                 </div>
-
-                {/* Título */}
-                <h3
-                  className="text-2xl text-white mb-3"
-                  style={{ fontFamily: "var(--font-bebas)" }}
-                >
-                  {step.title}
-                </h3>
-
-                {/* Descrição */}
-                <p className="text-sm text-[#666] leading-relaxed">
-                  {step.description}
-                </p>
-
-                {/* Seta mobile */}
-                {!isLast && (
-                  <div className="lg:hidden w-px h-8 bg-[#1f1f1f] mx-auto mt-6" />
-                )}
-              </div>
+              </AnimateIn>
             );
           })}
         </div>

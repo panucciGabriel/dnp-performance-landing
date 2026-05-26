@@ -1,5 +1,6 @@
 import { Wrench, DollarSign } from "lucide-react";
 import type { CatalogItem } from "@/lib/api";
+import { WA_URL } from "@/lib/constants";
 
 // Serviços padrão mostrados quando o catálogo da API ainda está vazio
 const DEFAULT_SERVICES: CatalogItem[] = [
@@ -89,7 +90,7 @@ export default function Services({ items }: ServicesProps) {
             Não encontrou o que precisa? Fale diretamente pelo WhatsApp.
           </p>
           <a
-            href={`https://wa.me/5518991636818?text=${encodeURIComponent("Olá! Gostaria de informações sobre serviços.")}`}
+            href={WA_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 border border-[#c41212] text-[#c41212] hover:bg-[#c41212] hover:text-white px-6 py-3 rounded text-sm font-semibold uppercase tracking-wide transition-all duration-200"

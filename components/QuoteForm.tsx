@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Send, CheckCircle, AlertCircle, Loader2, MessageCircle } from "lucide-react";
 import { submitQuote } from "@/lib/api";
+import { WA_URL } from "@/lib/constants";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -14,10 +15,6 @@ const VEHICLE_TYPES = [
   "Colheitadeira",
   "Outro",
 ];
-
-const WA_URL = `https://wa.me/5518991636818?text=${encodeURIComponent(
-  "Olá! Gostaria de solicitar um orçamento pela DNP Performance."
-)}`;
 
 export default function QuoteForm() {
   const [state, setState] = useState<FormState>("idle");

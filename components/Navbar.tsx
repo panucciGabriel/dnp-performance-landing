@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Menu, X, MessageCircle } from "lucide-react";
+import Image from "next/image";
+import { WA_URL } from "@/lib/constants";
 
 const navLinks = [
   { label: "Serviços",      href: "#servicos" },
@@ -11,12 +13,8 @@ const navLinks = [
   { label: "Rastrear",      href: "#rastreamento" },
 ];
 
-const WA_URL = `https://wa.me/5518991636818?text=${encodeURIComponent(
-  "Olá! Gostaria de solicitar um orçamento pela DNP Performance."
-)}`;
-
 export default function Navbar() {
-  const [open, setOpen]       = useState(false);
+  const [open, setOpen]         = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -36,15 +34,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <a href="#" className="flex-shrink-0">
-            <span
-              className="font-['var(--font-bebas)'] text-2xl lg:text-3xl tracking-widest"
-              style={{ fontFamily: "var(--font-bebas)" }}
-            >
-              <span className="text-[#c41212]">DN</span>
-              <span className="text-[#b8b8b8]">P</span>
-              <span className="text-white text-lg ml-1">PERFORMANCE</span>
-            </span>
+          <a href="#" className="flex-shrink-0" aria-label="DNP Performance — início">
+            <Image
+              src="/images/logo.png"
+              alt="DNP Performance"
+              width={200}
+              height={52}
+              className="h-10 lg:h-12 w-auto object-contain"
+              priority
+            />
           </a>
 
           {/* Nav desktop */}
@@ -77,7 +75,8 @@ export default function Navbar() {
           <button
             className="lg:hidden text-white p-2"
             onClick={() => setOpen(!open)}
-            aria-label="Menu"
+            aria-label={open ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={open}
           >
             {open ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -93,7 +92,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="py-3 text-[#b8b8b8] hover:text-white font-medium uppercase tracking-wide border-b border-[#1f1f1f] last:border-0"
+                className="py-3 text-[#b8b8b8] hover:text-white font-medium uppercase tracking-wide border-b border-[#1f1f1f] last:border-0 transition-colors"
               >
                 {link.label}
               </a>
