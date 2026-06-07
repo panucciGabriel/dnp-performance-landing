@@ -23,11 +23,20 @@ function InstagramIcon({ size = 16 }: { size?: number }) {
 }
 
 const navLinks = [
-  { label: "Serviços",      href: "#servicos" },
   { label: "Segmentos",     href: "#segmentos" },
+  { label: "Serviços",      href: "#servicos" },
   { label: "Como Funciona", href: "#como-funciona" },
+  { label: "Peças",         href: "#pecas" },
   { label: "Orçamento",     href: "#orcamento" },
   { label: "Rastrear",      href: "#rastreamento" },
+];
+
+const serviceLinks = [
+  { label: "Remap de Motor",        href: "#servicos" },
+  { label: "DPF / EGR / ARLA Off", href: "#servicos" },
+  { label: "Downpipes Inox",        href: "#servicos" },
+  { label: "Chip de Potência",      href: "#servicos" },
+  { label: "Loja de Peças",         href: "#pecas" },
 ];
 
 export default function Footer() {
@@ -58,9 +67,9 @@ export default function Footer() {
 
       {/* Corpo do footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           {/* Logo + descrição */}
-          <div className="sm:col-span-2 md:col-span-1">
+          <div>
             <Image
               src="/images/logo.png"
               alt="DNP Performance"
@@ -106,6 +115,28 @@ export default function Footer() {
             <ul className="flex flex-col gap-2">
               {navLinks.map((link) => (
                 <li key={link.href}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-[#555] hover:text-[#c41212] transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Serviços */}
+          <div>
+            <h4
+              className="text-lg text-white mb-4"
+              style={{ fontFamily: "var(--font-bebas)" }}
+            >
+              SERVIÇOS
+            </h4>
+            <ul className="flex flex-col gap-2">
+              {serviceLinks.map((link) => (
+                <li key={link.label}>
                   <a
                     href={link.href}
                     className="text-sm text-[#555] hover:text-[#c41212] transition-colors"

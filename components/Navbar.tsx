@@ -6,9 +6,10 @@ import Image from "next/image";
 import { WA_URL } from "@/lib/constants";
 
 const navLinks = [
-  { label: "Serviços",      href: "#servicos" },
   { label: "Segmentos",     href: "#segmentos" },
+  { label: "Serviços",      href: "#servicos" },
   { label: "Como Funciona", href: "#como-funciona" },
+  { label: "Peças",         href: "#pecas" },
   { label: "Orçamento",     href: "#orcamento" },
   { label: "Rastrear",      href: "#rastreamento" },
 ];

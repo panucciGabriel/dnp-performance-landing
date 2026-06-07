@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* ============================================================
+   TOKENS GLOBAIS
+   ============================================================ */
 :root {
   --background: #0a0a0a;
   --foreground: #ffffff;
@@ -17,11 +20,85 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar personalizada */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
-::-webkit-scrollbar-thumb { background: #c41212; border-radius: 4px; }
+/* ============================================================
+   SCROLLBAR PERSONALIZADA
+   ============================================================ */
+::-webkit-scrollbar        { width: 5px; }
+::-webkit-scrollbar-track  { background: #0a0a0a; }
+::-webkit-scrollbar-thumb  { background: #c41212; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #e01414; }
 
-/* Seleção de texto */
+/* ============================================================
+   SELEÇÃO DE TEXTO
+   ============================================================ */
 ::selection { background-color: #c41212; color: #fff; }
+
+/* ============================================================
+   FONTE MONO — IBM Plex Mono via CSS variable (next/font)
+   ============================================================ */
+@theme {
+  --font-family-mono: var(--font-ibm-mono), ui-monospace, "SFMono-Regular",
+    Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* ============================================================
+   MARQUEE — faixa de marcas
+   ============================================================ */
+.marquee-track {
+  animation: marquee 32s linear infinite;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ============================================================
+   DYNO CHART — animações do gráfico SVG
+   ============================================================ */
+
+/* Estado inicial: linhas invisíveis, área e ponto ocultos */
+.dyno-stock,
+.dyno-dnp   { stroke-dashoffset: 600; }
+.dyno-area,
+.dyno-dot   { opacity: 0; }
+
+/* Estado animado: ativado via classe .dyno-draw no wrapper */
+.dyno-draw .dyno-stock { animation: dynoDrawLine 1.4s ease 0.2s forwards; }
+.dyno-draw .dyno-dnp   { animation: dynoDrawLine 1.6s ease 0.5s forwards; }
+.dyno-draw .dyno-area  { animation: dynoFadeArea  1.0s ease 1.0s forwards; }
+.dyno-draw .dyno-dot   { animation: dynoFadeDot   0.4s ease 1.8s forwards; }
+
+@keyframes dynoDrawLine { to { stroke-dashoffset: 0; } }
+@keyframes dynoFadeArea { to { opacity: 0.5; } }
+@keyframes dynoFadeDot  { to { opacity: 1; } }
+
+/* Acessibilidade: desativa animações quando solicitado */
+@media (prefers-reduced-motion: reduce) {
+  .dyno-stock,
+  .dyno-dnp  { stroke-dashoffset: 0 !important; animation: none !important; }
+  .dyno-area { opacity: 0.5 !important; animation: none !important; }
+  .dyno-dot  { opacity: 1 !important;   animation: none !important; }
+}
+
+/* ============================================================
+   PULSE RING — indicador "Live" no card do hero
+   ============================================================ */
+@keyframes pulseRing {
+  0%   { box-shadow: 0 0 0 0   rgba(196, 18, 18, 0.55); }
+  70%  { box-shadow: 0 0 0 10px rgba(196, 18, 18, 0);   }
+  100% { box-shadow: 0 0 0 0   rgba(196, 18, 18, 0);    }
+}
+.pulse-ring { animation: pulseRing 2.4s ease-out infinite; }
+
+/* ============================================================
+   ANIMATE-IN — utilidade para o hook de scroll
+   ============================================================ */
+.animate-in-hidden {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.animate-in-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}

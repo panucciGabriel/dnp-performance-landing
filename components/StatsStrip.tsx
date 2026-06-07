@@ -1,52 +1,82 @@
-import { Car, MapPin, Cpu, Zap } from "lucide-react";
-import AnimateIn from "@/components/AnimateIn";
+"use client";
 
-const stats = [
+import { useCountUp } from "@/lib/useCountUp";
+
+// ============================================================
+//  STAT ITEM — um número animado com label e descrição
+// ============================================================
+interface StatProps {
+  to: number;
+  prefix?: string;
+  suffix?: string;
+  label: string;
+  desc: string;
+  delay?: number;
+}
+
+function StatItem({ to, prefix = "", suffix = "", label, desc }: StatProps) {
+  const { ref, val } = useCountUp(to, 1400);
+
+  return (
+    <div className="bg-[#111] h-full py-10 px-6 flex flex-col items-center text-center">
+      {/* Número animado */}
+      <div
+        className="text-white leading-none"
+        style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(2.5rem,5vw,3.5rem)" }}
+        aria-live="polite"
+      >
+        {prefix}
+        <span ref={ref}>{val.toLocaleString("pt-BR")}</span>
+        {suffix}
+      </div>
+
+      {/* Label em vermelho */}
+      <div className="mt-3 font-mono text-[11px] tracking-[0.18em] uppercase text-[#c41212]">
+        {label}
+      </div>
+
+      {/* Descrição */}
+      <p className="mt-2 text-[13px] text-[#555] leading-relaxed max-w-[200px]">
+        {desc}
+      </p>
+    </div>
+  );
+}
+
+// ============================================================
+//  STATS STRIP
+// ============================================================
+const stats: StatProps[] = [
   {
-    icon: Car,
-    title: "Automotivo + Agrícola",
-    description: "2 segmentos atendidos com a mesma excelência",
+    to: 850, prefix: "+", suffix: "",
+    label: "Mapas aplicados",
+    desc:  "ECUs reprogramadas com segurança e precisão",
   },
   {
-    icon: MapPin,
-    title: "Vamos até você",
-    description: "Atendemos no seu local, sem deslocamento",
+    to: 35, prefix: "+", suffix: "%",
+    label: "Ganho de torque",
+    desc:  "Média real em motores diesel turbo",
   },
   {
-    icon: Cpu,
-    title: "Equipamento profissional",
-    description: "Hardware e software de última geração",
+    to: 2, prefix: "", suffix: "",
+    label: "Segmentos",
+    desc:  "Automotivo e agrícola com a mesma excelência",
   },
   {
-    icon: Zap,
-    title: "Resposta rápida",
-    description: "Orçamento via WhatsApp no mesmo dia",
+    to: 100, prefix: "", suffix: "%",
+    label: "Reversível",
+    desc:  "Mapa original sempre preservado",
   },
 ];
 
 export default function StatsStrip() {
   return (
-    <section className="bg-[#111] border-y border-[#1f1f1f]">
+    <section id="diferenciais" className="bg-[#111] border-y border-[#1f1f1f]">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#1f1f1f]">
-          {stats.map((stat, i) => {
-            const Icon = stat.icon;
-            return (
-              <AnimateIn key={stat.title} delay={i * 80}>
-                <div className="bg-[#111] flex flex-col items-center text-center gap-2 py-8 px-4 sm:px-6 h-full">
-                  <div className="w-10 h-10 rounded border border-[#c41212]/30 flex items-center justify-center bg-[#c41212]/5 mb-1 shrink-0">
-                    <Icon size={18} className="text-[#c41212]" />
-                  </div>
-                  <h3 className="text-sm font-semibold text-white leading-snug">
-                    {stat.title}
-                  </h3>
-                  <p className="text-xs text-[#555] leading-relaxed">
-                    {stat.description}
-                  </p>
-                </div>
-              </AnimateIn>
-            );
-          })}
+          {stats.map((stat) => (
+            <StatItem key={stat.label} {...stat} />
+          ))}
         </div>
       </div>
     </section>
