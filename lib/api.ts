@@ -59,6 +59,3 @@ export async function trackOrder(whatsapp: string): Promise<OrderTrack[]> {
   }
 }
 
-export const WHATSAPP_URL = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(
-  process.env.NEXT_PUBLIC_WHATSAPP_MESSAGE ?? "Olá! Quero um orçamento."
-)}`;
