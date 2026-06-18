@@ -89,7 +89,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Logo */}
           <div className="shrink-0 h-[62px] flex items-center gap-2.5 px-5 border-b border-dnp-border">
             <div className="relative w-8 h-8 rounded-[3px] shrink-0 overflow-hidden">
-              <Image src="/images/dnp-logo.jpg" alt="DNP Performance" fill className="object-cover" />
+              <Image src="/images/dnp-logo.jpg" alt="DNP Performance" fill sizes="32px" className="object-cover" />
             </div>
             <span className="font-heading text-[14px] leading-none whitespace-nowrap">
               <span className="text-dnp-red">DNP </span>
@@ -150,7 +150,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="border-t border-dnp-border px-5 py-3.5 flex items-center gap-2.5">
             <div className="w-[30px] h-[30px] rounded-full bg-dnp-red shrink-0 overflow-hidden flex items-center justify-center">
               <div className="relative w-8 h-8 rounded-full overflow-hidden shrink-0">
-                <Image src="/images/dnp-avatar.jpg" alt="DNP Admin" fill className="object-cover" />
+                <Image src="/images/dnp-avatar.jpg" alt="DNP Admin" fill sizes="32px" className="object-cover" />
               </div>
             </div>
             <div className="flex-1 min-w-0">
