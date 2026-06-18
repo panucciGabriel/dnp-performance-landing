@@ -19,10 +19,12 @@ const config: Config = {
         "dnp-red-light": "#e01414",
         "dnp-silver": "#b8b8b8",
         "dnp-gray":   "#666666",
+        "dnp-green":  "#3d9a6c",
       },
       fontFamily: {
         heading: ["var(--font-bebas)", "sans-serif"],
         body:    ["var(--font-inter)", "sans-serif"],
+        mono:    ["var(--font-ibm-mono)", "monospace"],
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
