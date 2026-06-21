@@ -333,14 +333,14 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="absolute left-[22px] right-[22px] top-[53px]">
-            <p className="font-heading text-[43.2px] text-white" style={{ lineHeight: "43.2px", letterSpacing: "0.86px" }}>128</p>
+            <p className="font-heading text-[43.2px] text-[#666]" style={{ lineHeight: "43.2px", letterSpacing: "0.86px" }}>—</p>
           </div>
           <div className="absolute left-[22px] right-[22px] flex items-center gap-[5px]" style={{ top: "105.21px" }}>
-            <TrendingUp className="w-[11px] h-[11px] text-dnp-green shrink-0" />
-            <p className="font-mono text-[10px] text-dnp-green tracking-[0.8px]">+5 novos esta semana</p>
+            <Minus className="w-[11px] h-[11px] text-[#666] shrink-0" />
+            <p className="font-mono text-[10px] text-[#666] tracking-[0.8px]">Em breve</p>
           </div>
           <div className="absolute left-[22px] right-[22px]" style={{ top: "126.21px" }}>
-            <p className="font-body text-[11px] text-[#666]">Total cadastrado no sistema</p>
+            <p className="font-body text-[11px] text-[#666]">Métrica ainda não disponível</p>
           </div>
         </div>
 
@@ -376,15 +376,15 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="pt-1">
-              <p className="font-heading text-[30.4px] text-white" style={{ lineHeight: "30.4px", letterSpacing: "0.61px" }}>
-                R$ 24,8K
+              <p className="font-heading text-[30.4px] text-[#666]" style={{ lineHeight: "30.4px", letterSpacing: "0.61px" }}>
+                —
               </p>
             </div>
             <div className="flex items-center gap-[5px]">
-              <TrendingUp className="w-[11px] h-[11px] text-dnp-green shrink-0" />
-              <p className="font-mono text-[10px] text-dnp-green tracking-[0.8px]">+18% vs. mês anterior</p>
+              <Minus className="w-[11px] h-[11px] text-[#666] shrink-0" />
+              <p className="font-mono text-[10px] text-[#666] tracking-[0.8px]">Em breve</p>
             </div>
-            <p className="font-body text-[11px] text-[#666]">Estimativa do mês atual</p>
+            <p className="font-body text-[11px] text-[#666]">Métrica ainda não disponível</p>
           </div>
         </div>
       </div>

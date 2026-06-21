@@ -55,7 +55,7 @@ export async function fetchAdminOrders(): Promise<AdminOrder[]> {
     headers: authHeaders(),
     cache: "no-store",
   });
-  if (res.status === 401) throw new Error("UNAUTHORIZED");
+  if (res.status === 401 || res.status === 403) throw new Error("UNAUTHORIZED");
   if (!res.ok) throw new Error("Erro ao buscar ordens");
   return res.json();
 }
@@ -65,7 +65,7 @@ export async function updateOrderStatus(id: number, status: string): Promise<voi
     method: "PATCH",
     headers: authHeaders(),
   });
-  if (res.status === 401) throw new Error("UNAUTHORIZED");
+  if (res.status === 401 || res.status === 403) throw new Error("UNAUTHORIZED");
   if (!res.ok) throw new Error("Erro ao atualizar status");
 }
 
@@ -94,7 +94,7 @@ export async function createOrder(payload: CreateOrderPayload): Promise<AdminOrd
     headers: authHeaders(),
     body: JSON.stringify(payload),
   });
-  if (res.status === 401) throw new Error("UNAUTHORIZED");
+  if (res.status === 401 || res.status === 403) throw new Error("UNAUTHORIZED");
   if (!res.ok) throw new Error("Erro ao criar ordem");
   return res.json();
 }
@@ -107,7 +107,7 @@ export async function uploadEcuFile(id: number, file: File): Promise<AdminOrder>
     headers: { Authorization: `Bearer ${getToken()}` },
     body: formData,
   });
-  if (res.status === 401) throw new Error("UNAUTHORIZED");
+  if (res.status === 401 || res.status === 403) throw new Error("UNAUTHORIZED");
   if (!res.ok) throw new Error("Erro ao enviar arquivo");
   return res.json();
 }
@@ -133,7 +133,7 @@ export async function createCatalogItem(
     headers: authHeaders(),
     body: JSON.stringify(data),
   });
-  if (res.status === 401) throw new Error("UNAUTHORIZED");
+  if (res.status === 401 || res.status === 403) throw new Error("UNAUTHORIZED");
   if (!res.ok) throw new Error("Erro ao criar serviço");
   return res.json();
 }
