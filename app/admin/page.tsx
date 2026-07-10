@@ -6,10 +6,45 @@ import {
   FileText, Users, CheckCircle, DollarSign,
   Eye, MapPin, Package,
   BarChart2, ArrowUpRight, Plus, Download,
-  RefreshCw, Check,
-  Minus, TrendingUp,
+  RefreshCw, Check, Lock,
+  Minus,
 } from "lucide-react";
 import { fetchAdminOrders, clearToken, type AdminOrder } from "@/lib/admin-api";
+import { useCountUp } from "@/lib/useCountUp";
+
+// ─── prefers-reduced-motion ───────────────────────────────────────────────────
+
+function useReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return reduced;
+}
+
+// ─── KPI number com contador animado (respeita reduced-motion) ────────────────
+
+function KpiNumber({ value, className }: { value: number; className?: string }) {
+  const reduced = useReducedMotion();
+  const { ref, val } = useCountUp(value);
+  if (reduced) return <span className={className}>{value}</span>;
+  return <span ref={ref} className={className}>{val}</span>;
+}
+
+// ─── Skeleton placeholder ──────────────────────────────────────────────────────
+
+function Skeleton({ className = "" }: { className?: string }) {
+  return (
+    <div
+      aria-hidden
+      className={`animate-pulse rounded bg-dnp-border motion-reduce:animate-none ${className}`}
+    />
+  );
+}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -54,53 +89,54 @@ function toRow(o: AdminOrder): Row {
   };
 }
 
-// ─── Status badge — cores exatas do Figma ────────────────────────────────────
+// ─── Status badge — tints semânticos sobre a paleta DNP ───────────────────────
 
 const STATUS_CFG: Record<string, {
-  label: string; dotBg: string; bg: string; border: string; text: string;
+  label: string; dotBg: string; bg: string; border: string; text: string; pulse?: boolean;
 }> = {
   EM_ANDAMENTO: {
     label:  "Em Andamento",
-    dotBg:  "bg-[#c41212]",
+    dotBg:  "bg-dnp-red",
     bg:     "bg-[rgba(196,18,18,0.08)]",
     border: "border-[rgba(196,18,18,0.20)]",
-    text:   "text-[#c41212]",
+    text:   "text-dnp-red",
+    pulse:  true,
   },
   ABERTO: {
     label:  "Pendente",
-    dotBg:  "bg-[#666]",
-    bg:     "bg-[rgba(102,102,102,0.1)]",
-    border: "border-[#1f1f1f]",
-    text:   "text-[#666]",
+    dotBg:  "bg-dnp-silver",
+    bg:     "bg-[rgba(184,184,184,0.06)]",
+    border: "border-[rgba(184,184,184,0.14)]",
+    text:   "text-dnp-silver",
   },
   CONCLUIDO: {
     label:  "Concluído",
-    dotBg:  "bg-[#b8b8b8]",
-    bg:     "bg-[rgba(184,184,184,0.07)]",
-    border: "border-[rgba(184,184,184,0.12)]",
-    text:   "text-[#b8b8b8]",
+    dotBg:  "bg-dnp-green",
+    bg:     "bg-[rgba(61,154,108,0.08)]",
+    border: "border-[rgba(61,154,108,0.20)]",
+    text:   "text-dnp-green",
   },
   CONCLUÍDO: {
     label:  "Concluído",
-    dotBg:  "bg-[#b8b8b8]",
-    bg:     "bg-[rgba(184,184,184,0.07)]",
-    border: "border-[rgba(184,184,184,0.12)]",
-    text:   "text-[#b8b8b8]",
+    dotBg:  "bg-dnp-green",
+    bg:     "bg-[rgba(61,154,108,0.08)]",
+    border: "border-[rgba(61,154,108,0.20)]",
+    text:   "text-dnp-green",
   },
   CANCELADO: {
     label:  "Cancelado",
-    dotBg:  "bg-[#444]",
-    bg:     "bg-[rgba(255,255,255,0.02)]",
-    border: "border-[#1f1f1f]",
-    text:   "text-[#444]",
+    dotBg:  "bg-dnp-gray",
+    bg:     "bg-white/[0.02]",
+    border: "border-dnp-border",
+    text:   "text-dnp-gray",
   },
 };
 
 function StatusBadge({ status }: { status: string }) {
   const c = STATUS_CFG[status] ?? STATUS_CFG.ABERTO;
   return (
-    <span className={`inline-flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.9px] px-[9px] py-[4px] border rounded-[2px] ${c.bg} ${c.border} ${c.text}`}>
-      <span className={`w-[5px] h-[5px] rounded-[2.5px] shrink-0 ${c.dotBg}`} />
+    <span className={`inline-flex items-center gap-[5px] font-mono text-[10px] uppercase tracking-[0.9px] px-[9px] py-[4px] border rounded-[2px] ${c.bg} ${c.border} ${c.text}`}>
+      <span className={`w-[5px] h-[5px] rounded-full shrink-0 ${c.dotBg} ${c.pulse ? "animate-pulse-slow motion-reduce:animate-none" : ""}`} />
       {c.label}
     </span>
   );
@@ -173,28 +209,76 @@ function buildActivity(orders: AdminOrder[]): ActivityItem[] {
     });
 }
 
-// ─── Bottom quick-access cards ────────────────────────────────────────────────
+// ─── KPI card ──────────────────────────────────────────────────────────────────
+
+function KpiCard({
+  label, Icon, children, footer, loading,
+}: {
+  label: string;
+  Icon: React.ElementType;
+  children: React.ReactNode;
+  footer: React.ReactNode;
+  loading?: boolean;
+}) {
+  return (
+    <div className="group bg-dnp-dark flex flex-col justify-between gap-4 p-5 min-h-[150px] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(196,18,18,0.35),0_8px_20px_-8px_rgba(196,18,18,0.4)] motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+      <div className="flex items-center justify-between">
+        <p className="font-mono text-[10px] text-dnp-gray uppercase tracking-[1.8px]">{label}</p>
+        <div className="w-7 h-7 border border-[rgba(196,18,18,0.22)] flex items-center justify-center rounded-[3px] shrink-0">
+          <Icon className="w-[14px] h-[14px] text-dnp-red" aria-hidden />
+        </div>
+      </div>
+      <div className="min-h-[44px] flex items-end">
+        {loading ? <Skeleton className="h-9 w-24" /> : children}
+      </div>
+      <p className="font-body text-[11px] text-dnp-silver">{footer}</p>
+    </div>
+  );
+}
+
+// ─── Quick-access cards (em desenvolvimento) ──────────────────────────────────
 
 const QUICK = [
   {
     Icon: MapPin,
     title: "RASTREAMENTO",
     desc:  "Acompanhe status e localização de cada pedido ativo em tempo real.",
-    info:  "3 pedidos em rota",
   },
   {
     Icon: Package,
     title: "LOJA DE PEÇAS",
     desc:  "Gerencie o catálogo de peças, preços e estoque disponível na loja.",
-    info:  "42 itens · 6 com estoque baixo",
   },
   {
     Icon: BarChart2,
     title: "RELATÓRIOS",
     desc:  "Visualize métricas de performance, conversão e receita por período.",
-    info:  "Último relatório: 01/06/26",
   },
 ];
+
+function QuickCard({ Icon, title, desc }: { Icon: React.ElementType; title: string; desc: string }) {
+  return (
+    <div
+      aria-disabled
+      className="bg-dnp-dark px-5 py-[18px] flex flex-col gap-2.5 opacity-60 select-none"
+    >
+      <div className="flex items-center justify-between">
+        <div className="w-[34px] h-[34px] border border-dnp-border flex items-center justify-center rounded">
+          <Icon className="w-[17px] h-[17px] text-dnp-gray" aria-hidden />
+        </div>
+        <span className="inline-flex items-center gap-1 font-mono text-[9px] text-dnp-gray uppercase tracking-[1.26px]">
+          <Lock className="w-2.5 h-2.5" aria-hidden />
+          Em breve
+        </span>
+      </div>
+      <h3 className="font-heading text-[17.6px] text-white tracking-[1.06px]">{title}</h3>
+      <p className="font-body text-[12px] text-dnp-silver leading-[18px]">{desc}</p>
+    </div>
+  );
+}
+
+const btnFocus =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dnp-red focus-visible:ring-offset-2 focus-visible:ring-offset-dnp-dark";
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
@@ -227,28 +311,22 @@ export default function AdminDashboard() {
     return () => clearInterval(t);
   }, [load]);
 
-  // Quando API falha (sem backend), usa dados do design como fallback visual
-  const useMock = error && orders.length === 0;
+  const total   = orders.length;
+  const pending = orders.filter((o) => o.status === "ABERTO").length;
+  const done    = orders.filter((o) => o.status === "CONCLUIDO" || (o.status as string) === "CONCLUÍDO").length;
 
-  const MOCK_ROWS: Row[] = [
-    { id: 41, orderId: "#0041", client: "Carlos Mendonça",  service: "Remap ECU + DPF Off",    vehicle: "Hilux SRX 2022",    date: "11/06/26", status: "EM_ANDAMENTO" },
-    { id: 40, orderId: "#0040", client: "Fernanda Rocha",   service: "ARLA 32 Off",             vehicle: "John Deere 6110J",  date: "10/06/26", status: "ABERTO"       },
-    { id: 39, orderId: "#0039", client: "Rodrigo Lima",     service: "Escapamento Inox",        vehicle: "Amarok V6 2021",    date: "09/06/26", status: "CONCLUIDO"    },
-    { id: 38, orderId: "#0038", client: "Ana Paula Souza",  service: "Chip de Potência",        vehicle: "S10 2.8 2020",      date: "08/06/26", status: "ABERTO"       },
-    { id: 37, orderId: "#0037", client: "Jonas Ferreira",   service: "EGR Off + Diagnóstico",   vehicle: "New Holland T7",    date: "07/06/26", status: "CONCLUIDO"    },
-    { id: 36, orderId: "#0036", client: "Marcos Teixeira",  service: "Remap ECU",               vehicle: "Ranger 3.2 2019",   date: "06/06/26", status: "CANCELADO"    },
-  ];
+  const clientesAtivos = new Set(
+    orders
+      .map((o) => o.vehicle?.client?.contatoWhatsapp || o.vehicle?.client?.name)
+      .filter((id): id is string => Boolean(id))
+  ).size;
 
-  const total   = useMock ? 47  : orders.length;
-  const pending = useMock ? 7   : orders.filter((o) => o.status === "ABERTO").length;
-  const done    = useMock ? 31  : orders.filter((o) => o.status === "CONCLUIDO" || (o.status as string) === "CONCLUÍDO").length;
+  const recent = [...orders]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 6)
+    .map(toRow);
 
-  const recent = useMock
-    ? MOCK_ROWS
-    : [...orders]
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 6)
-        .map(toRow);
+  const activity = buildActivity(orders);
 
   const month = new Date()
     .toLocaleDateString("pt-BR", { month: "long", year: "numeric" })
@@ -256,173 +334,138 @@ export default function AdminDashboard() {
     .replace(/^\w/, (c) => c.toUpperCase());
 
   return (
-    <div className="flex flex-col gap-5 px-7 pt-6 pb-8 min-h-full overflow-auto">
+    <div className="flex flex-col gap-5 px-4 sm:px-7 pt-6 pb-8 min-h-full">
 
       {/* ── Page header ── */}
-      <div className="flex items-end justify-between gap-4 shrink-0">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between shrink-0">
         <div className="flex flex-col gap-1">
-          {/* Eyebrow — w-[18px] h-px conforme Figma */}
           <div className="flex items-center gap-2">
             <div className="w-[18px] h-px bg-dnp-red shrink-0" />
             <span className="font-mono text-[10px] text-dnp-red uppercase tracking-[2.2px]">
               Visão Geral · {month}
             </span>
           </div>
-          {/* Title — Bebas Neue, line-height 41.6px conforme Figma */}
-          <div className="flex flex-col pt-px">
-            <h1 className="font-heading text-[41.6px] text-white" style={{ lineHeight: "41.6px", letterSpacing: "1.25px" }}>
-              PAINEL DE CONTROLE
-            </h1>
-          </div>
-          {/* Subtitle */}
-          <p className="font-body text-[13px] text-[#666]">
+          <h1 className="font-heading text-4xl sm:text-[41.6px] text-white leading-none tracking-[1.25px] pt-px">
+            PAINEL DE CONTROLE
+          </h1>
+          <p className="font-body text-[13px] text-dnp-silver">
             Gerencie orçamentos, clientes e serviços em tempo real.
           </p>
           {error && (
-            <p className="font-mono text-[9px] text-dnp-red uppercase tracking-wider mt-0.5">
+            <p className="font-mono text-[9px] text-dnp-red uppercase tracking-wider mt-0.5" role="status">
               Sem conexão com o backend
             </p>
           )}
         </div>
 
-        {/* Buttons */}
+        {/* Actions */}
         <div className="flex items-center gap-2.5 shrink-0">
-          <button className="flex items-center gap-[7px] h-9 border border-[#1f1f1f] text-dnp-silver font-mono text-[10px] uppercase tracking-[1.6px] px-4 rounded transition-colors hover:text-white cursor-pointer">
-            <Download className="w-3 h-3 shrink-0" />
+          <button
+            type="button"
+            className={`flex items-center gap-[7px] h-9 border border-dnp-border text-dnp-silver font-mono text-[10px] uppercase tracking-[1.6px] px-4 rounded transition-colors hover:text-white hover:border-dnp-gray cursor-pointer ${btnFocus}`}
+          >
+            <Download className="w-3 h-3 shrink-0" aria-hidden />
             Exportar
           </button>
-          <button className="flex items-center gap-[7px] h-9 bg-dnp-red text-white font-mono text-[10px] uppercase tracking-[1.6px] px-[18px] rounded transition-colors hover:bg-dnp-red-light cursor-pointer">
-            <Plus className="w-3 h-3 shrink-0" />
+          <button
+            type="button"
+            className={`flex items-center gap-[7px] h-9 bg-dnp-red text-white font-mono text-[10px] uppercase tracking-[1.6px] px-[18px] rounded transition-colors hover:bg-dnp-red-light cursor-pointer ${btnFocus}`}
+          >
+            <Plus className="w-3 h-3 shrink-0" aria-hidden />
             Novo Orçamento
           </button>
         </div>
       </div>
 
-      {/* ── KPI Cards — grid com gap 1px (separador) ── */}
-      {/* Figma: grid gap-x-px, cada card h-[160.2px], bg-[#111] */}
-      <div className="shrink-0 grid grid-cols-2 xl:grid-cols-4 gap-px bg-[#1f1f1f] border border-[#1f1f1f] rounded overflow-hidden">
+      {/* ── KPI Cards ── */}
+      <div className="shrink-0 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-px bg-dnp-border border border-dnp-border rounded overflow-hidden">
 
-        {/* KPI 1: Orçamentos — value em VERMELHO conforme Figma */}
-        <div className="bg-[#111] h-[160.2px] relative">
-          <div className="absolute left-[22px] right-[22px] top-5 flex items-center justify-between">
-            <p className="font-mono text-[9px] text-[#666] uppercase tracking-[1.8px]">Orçamentos</p>
-            <div className="w-6 h-6 border border-[rgba(196,18,18,0.22)] flex items-center justify-center rounded-[3px]">
-              <FileText className="w-[13px] h-[13px] text-dnp-red" />
-            </div>
-          </div>
-          <div className="absolute left-[22px] right-[22px] top-[53px]">
-            <p className="font-heading text-[43.2px] text-dnp-red" style={{ lineHeight: "43.2px", letterSpacing: "0.86px" }}>
-              {loading ? "—" : String(total)}
-            </p>
-          </div>
-          <div className="absolute left-[22px] right-[22px] flex items-center gap-[5px]" style={{ top: "105.21px" }}>
-            <TrendingUp className="w-[11px] h-[11px] text-dnp-green shrink-0" />
-            <p className="font-mono text-[10px] text-dnp-green tracking-[0.8px]">+12% vs. mês anterior</p>
-          </div>
-          <div className="absolute left-[22px] right-[22px]" style={{ top: "126.21px" }}>
-            <p className="font-body text-[11px] text-[#666]">Este mês · {pending} pendentes</p>
-          </div>
-        </div>
+        <KpiCard label="Orçamentos" Icon={FileText} loading={loading}
+          footer={<>Este mês · {pending} pendentes</>}>
+          <p className="font-heading text-[40px] leading-none tracking-[0.86px] text-dnp-red">
+            <KpiNumber key={total} value={total} />
+          </p>
+        </KpiCard>
 
-        {/* KPI 2: Clientes Ativos — value em BRANCO */}
-        <div className="bg-[#111] h-[160.2px] relative">
-          <div className="absolute left-[22px] right-[22px] top-5 flex items-center justify-between">
-            <p className="font-mono text-[9px] text-[#666] uppercase tracking-[1.8px]">Clientes Ativos</p>
-            <div className="w-6 h-6 border border-[rgba(196,18,18,0.22)] flex items-center justify-center rounded-[3px]">
-              <Users className="w-[13px] h-[13px] text-dnp-red" />
-            </div>
-          </div>
-          <div className="absolute left-[22px] right-[22px] top-[53px]">
-            <p className="font-heading text-[43.2px] text-[#666]" style={{ lineHeight: "43.2px", letterSpacing: "0.86px" }}>—</p>
-          </div>
-          <div className="absolute left-[22px] right-[22px] flex items-center gap-[5px]" style={{ top: "105.21px" }}>
-            <Minus className="w-[11px] h-[11px] text-[#666] shrink-0" />
-            <p className="font-mono text-[10px] text-[#666] tracking-[0.8px]">Em breve</p>
-          </div>
-          <div className="absolute left-[22px] right-[22px]" style={{ top: "126.21px" }}>
-            <p className="font-body text-[11px] text-[#666]">Métrica ainda não disponível</p>
-          </div>
-        </div>
+        <KpiCard label="Clientes Ativos" Icon={Users} loading={loading}
+          footer="Com pelo menos 1 orçamento">
+          <p className="font-heading text-[40px] leading-none tracking-[0.86px] text-white">
+            <KpiNumber key={clientesAtivos} value={clientesAtivos} />
+          </p>
+        </KpiCard>
 
-        {/* KPI 3: Serviços Concluídos — value em BRANCO */}
-        <div className="bg-[#111] h-[160.2px] relative">
-          <div className="absolute left-[22px] right-[22px] top-5 flex items-center justify-between">
-            <p className="font-mono text-[9px] text-[#666] uppercase tracking-[1.8px]">Serviços Concluídos</p>
-            <div className="w-6 h-6 border border-[rgba(196,18,18,0.22)] flex items-center justify-center rounded-[3px]">
-              <CheckCircle className="w-[13px] h-[13px] text-dnp-red" />
-            </div>
-          </div>
-          <div className="absolute left-[22px] right-[22px] top-[53px]">
-            <p className="font-heading text-[43.2px] text-white" style={{ lineHeight: "43.2px", letterSpacing: "0.86px" }}>
-              {loading ? "—" : String(done)}
-            </p>
-          </div>
-          <div className="absolute left-[22px] right-[22px] flex items-center gap-[5px]" style={{ top: "105.21px" }}>
-            <Minus className="w-[11px] h-[11px] text-[#666] shrink-0" />
-            <p className="font-mono text-[10px] text-[#666] tracking-[0.8px]">Igual ao mês anterior</p>
-          </div>
-          <div className="absolute left-[22px] right-[22px]" style={{ top: "126.21px" }}>
-            <p className="font-body text-[11px] text-[#666]">Concluídos em junho</p>
-          </div>
-        </div>
+        <KpiCard label="Serviços Concluídos" Icon={CheckCircle} loading={loading}
+          footer={<>Concluídos em {month}</>}>
+          <p className="font-heading text-[40px] leading-none tracking-[0.86px] text-white">
+            <KpiNumber key={done} value={done} />
+          </p>
+        </KpiCard>
 
-        {/* KPI 4: Receita Est. — usa flex (não absolute) conforme Figma */}
-        <div className="bg-[#111] h-[160.2px]">
-          <div className="flex flex-col gap-2 px-[22px] pt-[22px] pb-7">
-            <div className="flex items-center justify-between">
-              <p className="font-mono text-[9px] text-[#666] uppercase tracking-[1.8px]">Receita Est.</p>
-              <div className="w-[26px] h-[26px] border border-[rgba(196,18,18,0.22)] flex items-center justify-center rounded-[3px]">
-                <DollarSign className="w-[13px] h-[13px] text-dnp-red" />
-              </div>
-            </div>
-            <div className="pt-1">
-              <p className="font-heading text-[30.4px] text-[#666]" style={{ lineHeight: "30.4px", letterSpacing: "0.61px" }}>
-                —
-              </p>
-            </div>
-            <div className="flex items-center gap-[5px]">
-              <Minus className="w-[11px] h-[11px] text-[#666] shrink-0" />
-              <p className="font-mono text-[10px] text-[#666] tracking-[0.8px]">Em breve</p>
-            </div>
-            <p className="font-body text-[11px] text-[#666]">Métrica ainda não disponível</p>
+        <KpiCard label="Receita Est." Icon={DollarSign}
+          footer="Métrica ainda não disponível">
+          <div className="flex flex-col gap-1.5">
+            <p className="font-heading text-[28px] leading-none tracking-[0.61px] text-dnp-gray">—</p>
+            <span className="flex items-center gap-[5px] font-mono text-[10px] text-dnp-gray tracking-[0.8px]">
+              <Minus className="w-[11px] h-[11px] shrink-0" aria-hidden />
+              Em breve
+            </span>
           </div>
-        </div>
+        </KpiCard>
       </div>
 
-      {/* ── Middle section: Table + Activity (side by side) ── */}
-      <div className="grid xl:grid-cols-[1fr_300px] gap-px bg-[#1f1f1f] border border-[#1f1f1f] rounded overflow-hidden shrink-0">
+      {/* ── Middle: Table + Activity ── */}
+      <div className="grid xl:grid-cols-[1fr_320px] gap-px bg-dnp-border border border-dnp-border rounded overflow-hidden shrink-0">
 
         {/* Orders table */}
-        <div className="bg-[#111] flex flex-col">
-          {/* Panel header */}
-          <div className="flex items-center justify-between px-[22px] py-4 border-b border-[#1f1f1f]">
+        <section className="bg-dnp-dark flex flex-col">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-dnp-border">
             <div className="flex flex-col gap-px">
               <h2 className="font-heading text-[19.2px] text-white tracking-[1.34px]">ORÇAMENTOS RECENTES</h2>
-              <p className="font-mono text-[9px] text-[#666] uppercase tracking-[1.08px]">Últimas solicitações recebidas</p>
+              <p className="font-mono text-[9px] text-dnp-gray uppercase tracking-[1.08px]">Últimas solicitações recebidas</p>
             </div>
-            <button className="flex items-center gap-[7px] h-[30px] border border-[#1f1f1f] text-dnp-silver font-mono text-[9px] uppercase tracking-[1.44px] px-3 rounded cursor-pointer hover:text-white transition-colors">
+            <button
+              type="button"
+              onClick={() => router.push("/admin/orcamentos")}
+              className={`flex items-center gap-[7px] h-[30px] border border-dnp-border text-dnp-silver font-mono text-[9px] uppercase tracking-[1.44px] px-3 rounded cursor-pointer hover:text-white hover:border-dnp-gray transition-colors ${btnFocus}`}
+            >
               Ver todos
-              <ArrowUpRight className="w-2.5 h-2.5" />
+              <ArrowUpRight className="w-2.5 h-2.5" aria-hidden />
             </button>
           </div>
 
-          {/* Table */}
           {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <RefreshCw className="w-5 h-5 text-[#666] animate-spin" />
+            <div className="flex flex-col divide-y divide-dnp-border">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4 px-5 py-[18px]">
+                  <Skeleton className="h-3 w-10" />
+                  <Skeleton className="h-3 w-32" />
+                  <Skeleton className="h-3 w-24 hidden sm:block" />
+                  <div className="flex-1" />
+                  <Skeleton className="h-5 w-20" />
+                </div>
+              ))}
             </div>
           ) : recent.length === 0 ? (
-            <div className="flex items-center justify-center py-16">
-              <p className="font-body text-xs text-[#666]">Nenhum orçamento encontrado.</p>
+            <div className="flex flex-col items-center justify-center gap-2 py-16 px-6 text-center">
+              <FileText className="w-6 h-6 text-dnp-gray" aria-hidden />
+              <p className="font-body text-[13px] text-dnp-silver">Nenhum orçamento ainda</p>
+              <p className="font-mono text-[10px] text-dnp-gray uppercase tracking-wide">
+                As novas solicitações aparecem aqui automaticamente
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
+                <caption className="sr-only">Orçamentos recentes</caption>
                 <thead>
-                  <tr className="border-b border-[#1f1f1f]">
+                  <tr className="border-b border-dnp-border">
                     {["#", "Cliente", "Serviço", "Veículo", "Data", "Status", ""].map((col) => (
-                      <th key={col} className="px-[22px] py-[11px] text-left font-mono font-medium text-[9px] text-[#666] uppercase tracking-[1.62px] whitespace-nowrap">
-                        {col}
+                      <th
+                        key={col}
+                        scope="col"
+                        className="px-5 py-[11px] text-left font-mono font-medium text-[9px] text-dnp-gray uppercase tracking-[1.62px] whitespace-nowrap"
+                      >
+                        {col || <span className="sr-only">Ações</span>}
                       </th>
                     ))}
                   </tr>
@@ -431,29 +474,34 @@ export default function AdminDashboard() {
                   {recent.map((row, i) => (
                     <tr
                       key={row.id}
-                      className={`hover:bg-white/[0.015] transition-colors ${i < recent.length - 1 ? "border-b border-[#1f1f1f]" : ""}`}
+                      className={`opacity-0 animate-fade-up motion-reduce:opacity-100 motion-reduce:animate-none hover:bg-white/[0.02] transition-colors ${i < recent.length - 1 ? "border-b border-dnp-border" : ""}`}
+                      style={{ animationDelay: `${i * 50}ms` }}
                     >
-                      <td className="px-[22px] py-[18.5px] font-mono text-[11px] text-[#666] whitespace-nowrap">
+                      <td className="px-5 py-[18px] font-mono text-[11px] text-dnp-gray whitespace-nowrap">
                         {row.orderId}
                       </td>
-                      <td className="px-[22px] py-[17.5px] font-body font-medium text-[13px] text-white whitespace-nowrap">
+                      <td className="px-5 py-[18px] font-body font-medium text-[13px] text-white whitespace-nowrap">
                         {row.client}
                       </td>
-                      <td className="px-[22px] py-[18px] font-body text-[12px] text-[#b8b8b8] max-w-[200px]">
+                      <td className="px-5 py-[18px] font-body text-[12px] text-dnp-silver max-w-[200px]">
                         <span className="block truncate">{row.service}</span>
                       </td>
-                      <td className="px-[22px] py-[18.5px] font-mono text-[11px] text-[#666] whitespace-nowrap">
+                      <td className="px-5 py-[18px] font-mono text-[11px] text-dnp-silver whitespace-nowrap">
                         {row.vehicle}
                       </td>
-                      <td className="px-[22px] py-[18.5px] font-mono text-[11px] text-[#666] whitespace-nowrap">
+                      <td className="px-5 py-[18px] font-mono text-[11px] text-dnp-silver whitespace-nowrap">
                         {row.date}
                       </td>
-                      <td className="px-[22px] py-[16px]">
+                      <td className="px-5 py-[16px]">
                         <StatusBadge status={row.status} />
                       </td>
-                      <td className="px-[22px] pt-3 pb-[13px]">
-                        <button className="w-[26px] h-[26px] border border-[#1f1f1f] flex items-center justify-center text-[#666] hover:text-white transition-colors cursor-pointer rounded-[3px]">
-                          <Eye className="w-[11px] h-[11px]" />
+                      <td className="px-5 py-3">
+                        <button
+                          type="button"
+                          aria-label={`Ver detalhes do orçamento ${row.orderId}`}
+                          className={`w-[26px] h-[26px] border border-dnp-border flex items-center justify-center text-dnp-gray hover:text-white hover:border-dnp-gray transition-colors cursor-pointer rounded-[3px] ${btnFocus}`}
+                        >
+                          <Eye className="w-[11px] h-[11px]" aria-hidden />
                         </button>
                       </td>
                     </tr>
@@ -462,54 +510,67 @@ export default function AdminDashboard() {
               </table>
             </div>
           )}
-        </div>
+        </section>
 
         {/* Activity feed */}
-        <div className="bg-[#111] flex flex-col">
-          <div className="px-[22px] py-4 border-b border-[#1f1f1f]">
+        <section className="bg-dnp-dark flex flex-col">
+          <div className="px-5 py-4 border-b border-dnp-border">
             <h2 className="font-heading text-[19.2px] text-white tracking-[1.34px]">ATIVIDADE</h2>
-            <p className="font-mono text-[9px] text-[#666] uppercase tracking-[1.08px] mt-px">Atualizações recentes</p>
+            <p className="font-mono text-[9px] text-dnp-gray uppercase tracking-[1.08px] mt-px">Atualizações recentes</p>
           </div>
-          <div className="flex flex-col divide-y divide-[#1f1f1f]">
-            {buildActivity(orders).map(({ Icon, red, parts, time }: ActivityItem, i: number) => (
-              <div key={i} className="flex items-start gap-[11px] px-[18px] py-3">
-                <div className={`w-[26px] h-[26px] rounded-full flex items-center justify-center shrink-0 border ${
-                  red
-                    ? "bg-[rgba(196,18,18,0.05)] border-[rgba(196,18,18,0.28)]"
-                    : "bg-transparent border-[#1f1f1f]"
-                }`}>
-                  <Icon className={`w-3 h-3 ${red ? "text-dnp-red" : "text-[#666]"}`} />
+
+          {loading ? (
+            <div className="flex flex-col divide-y divide-dnp-border">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-start gap-[11px] px-[18px] py-3">
+                  <Skeleton className="w-[26px] h-[26px] rounded-full shrink-0" />
+                  <div className="flex-1 flex flex-col gap-1.5 pt-0.5">
+                    <Skeleton className="h-3 w-full max-w-[180px]" />
+                    <Skeleton className="h-2 w-14" />
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-body text-[12px] leading-[17.4px]">
-                    {parts.map((p, j) => (
-                      <span key={j} className={p.bold ? "text-white font-medium" : "text-dnp-silver font-normal"}>
-                        {p.text}
-                      </span>
-                    ))}
-                  </p>
-                  <p className="font-mono text-[9px] text-[#666] tracking-[0.9px] mt-[3px]">{time}</p>
+              ))}
+            </div>
+          ) : activity.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-1.5 py-12 px-6 text-center">
+              <p className="font-body text-[12px] text-dnp-silver">Sem atividade recente</p>
+            </div>
+          ) : (
+            <div className="flex flex-col divide-y divide-dnp-border">
+              {activity.map(({ Icon, red, parts, time }: ActivityItem, i: number) => (
+                <div
+                  key={i}
+                  className="opacity-0 animate-fade-up motion-reduce:opacity-100 motion-reduce:animate-none flex items-start gap-[11px] px-[18px] py-3"
+                  style={{ animationDelay: `${i * 50}ms` }}
+                >
+                  <div className={`w-[26px] h-[26px] rounded-full flex items-center justify-center shrink-0 border ${
+                    red
+                      ? "bg-[rgba(196,18,18,0.05)] border-[rgba(196,18,18,0.28)]"
+                      : "bg-transparent border-dnp-border"
+                  }`}>
+                    <Icon className={`w-3 h-3 ${red ? "text-dnp-red" : "text-dnp-gray"}`} aria-hidden />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-[12px] leading-[17.4px]">
+                      {parts.map((p, j) => (
+                        <span key={j} className={p.bold ? "text-white font-medium" : "text-dnp-silver font-normal"}>
+                          {p.text}
+                        </span>
+                      ))}
+                    </p>
+                    <p className="font-mono text-[9px] text-dnp-gray tracking-[0.9px] mt-[3px]">{time}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
 
-      {/* ── Bottom quick-access cards ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1f1f1f] border border-[#1f1f1f] rounded overflow-hidden shrink-0">
-        {QUICK.map(({ Icon, title, desc, info }) => (
-          <div key={title} className="bg-[#111] px-[22px] py-[18px] flex flex-col gap-2.5 cursor-not-allowed">
-            <div className="flex items-center justify-between">
-              <div className="w-[34px] h-[34px] border border-[rgba(196,18,18,0.22)] flex items-center justify-center rounded">
-                <Icon className="w-[17px] h-[17px] text-dnp-red" />
-              </div>
-              <ArrowUpRight className="w-3 h-3 text-[#666]" />
-            </div>
-            <h3 className="font-heading text-[17.6px] text-white tracking-[1.06px]">{title}</h3>
-            <p className="font-body text-[12px] text-[#666] leading-[18px]">{desc}</p>
-            <p className="font-mono text-[9px] text-dnp-red uppercase tracking-[1.26px]">{info}</p>
-          </div>
+      {/* ── Quick-access cards ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-dnp-border border border-dnp-border rounded overflow-hidden shrink-0">
+        {QUICK.map((q) => (
+          <QuickCard key={q.title} {...q} />
         ))}
       </div>
 

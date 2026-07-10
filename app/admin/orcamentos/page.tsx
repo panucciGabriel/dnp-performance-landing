@@ -33,7 +33,7 @@ function StatusBadge({ status }: { status: string }) {
   const c = STATUS_CFG[status] ?? STATUS_CFG.ABERTO;
   return (
     <span className={`inline-flex items-center gap-[5px] font-mono text-[9px] uppercase tracking-[0.9px] px-[9px] py-[4px] border rounded-[2px] ${c.bg} ${c.border} ${c.text}`}>
-      <span className={`w-[5px] h-[5px] rounded-[2.5px] shrink-0 ${c.dotBg}`} />
+      <span className={`w-[5px] h-[5px] rounded-[2.5px] shrink-0 ${c.dotBg} ${status === "EM_ANDAMENTO" ? "animate-pulse-slow" : ""}`} />
       {c.label}
     </span>
   );
@@ -694,9 +694,10 @@ export default function OrcamentosPage() {
                   return (
                     <tr
                       key={order.id}
-                      className={`hover:bg-white/[0.015] transition-colors ${
+                      className={`opacity-0 animate-fade-up hover:bg-white/[0.015] transition-colors ${
                         i < filtered.length - 1 ? "border-b border-[#1f1f1f]" : ""
                       }`}
+                      style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}
                     >
                       <td className="px-5 py-[14px] font-mono text-[11px] text-[#666] whitespace-nowrap">
                         {formatOrderId(order.id)}
