@@ -1,4 +1,8 @@
 @import "tailwindcss";
+/* Carrega o tailwind.config.ts (tokens dnp-*, fontes, animações).
+   Sem esta linha o Tailwind v4 ignora o config e os utilitários
+   de token não são gerados. */
+@config "../tailwind.config.ts";
 
 /* ============================================================
    TOKENS GLOBAIS
@@ -32,14 +36,6 @@ body {
    SELEÇÃO DE TEXTO
    ============================================================ */
 ::selection { background-color: #c41212; color: #fff; }
-
-/* ============================================================
-   FONTE MONO — IBM Plex Mono via CSS variable (next/font)
-   ============================================================ */
-@theme {
-  --font-family-mono: var(--font-ibm-mono), ui-monospace, "SFMono-Regular",
-    Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
 
 /* ============================================================
    MARQUEE — faixa de marcas
@@ -101,4 +97,41 @@ body {
   opacity: 1;
   transform: translateY(0);
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* ============================================================
+   LOGIN — Central de Remap (lado visual)
+   ============================================================ */
+
+/* Linha de scan que percorre o painel de foto */
+@keyframes lrScan {
+  from { top: 0%; }
+  to   { top: 100%; }
+}
+.lr-scan { animation: lrScan 6.5s linear infinite; }
+
+/* Crossfade lento entre a foto automotiva e a agrícola */
+@keyframes lrCrossfade {
+  0%,  34%  { opacity: 0; }
+  46%, 84%  { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}
+.lr-crossfade { animation: lrCrossfade 14s ease-in-out infinite; }
+
+/* Spinner do botão "Entrando" */
+@keyframes lrSpin { to { transform: rotate(360deg); } }
+.lr-spin { animation: lrSpin 0.7s linear infinite; }
+
+/* Entrada do cartão */
+@keyframes lrCardIn {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.lr-card-in { animation: lrCardIn 0.55s ease-out 0.15s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lr-scan,
+  .lr-crossfade,
+  .lr-card-in { animation: none; }
+  .lr-crossfade { opacity: 0; }
 }

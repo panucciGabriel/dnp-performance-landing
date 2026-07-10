@@ -20,11 +20,22 @@ const config: Config = {
         "dnp-silver": "#b8b8b8",
         "dnp-gray":   "#666666",
         "dnp-green":  "#3d9a6c",
+        // Central de Remap (tela de login) — tons específicos do design
+        "dnp-ink":    "#010101", // fundo base do login
+        "dnp-visual": "#0a0a0b", // fundo do lado da foto
+        "dnp-panel":  "#111214", // cartão
+        "dnp-field":  "#16171a", // inputs
+        "dnp-line":   "#2a2c30", // bordas do login
+        "dnp-mist":   "#e9e9e9", // texto claro
+        "dnp-slate":  "#8a8d91", // texto secundário
+        "dnp-faint":  "#5c6066", // placeholder
+        "dnp-accent": "#e80409", // vermelho de destaque do design
       },
       fontFamily: {
         heading: ["var(--font-bebas)", "sans-serif"],
         body:    ["var(--font-inter)", "sans-serif"],
         mono:    ["var(--font-ibm-mono)", "monospace"],
+        display: ["var(--font-rajdhani)", "Rajdhani", "sans-serif"], // headings/botão do login
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

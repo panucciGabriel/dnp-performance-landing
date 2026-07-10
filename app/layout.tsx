@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Inter, IBM_Plex_Mono } from "next/font/google";
+import { Bebas_Neue, Inter, IBM_Plex_Mono, Rajdhani } from "next/font/google";
 import "./globals.css";
 import { SITE_URL, INSTAGRAM_URL } from "@/lib/constants";
 
@@ -19,6 +19,13 @@ const inter = Inter({
 const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
   variable: "--font-ibm-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const rajdhani = Rajdhani({
+  weight: ["500", "600", "700"],
+  variable: "--font-rajdhani",
   subsets: ["latin"],
   display: "swap",
 });
@@ -106,7 +113,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${bebasNeue.variable} ${inter.variable} ${ibmPlexMono.variable}`}>
+    <html lang="pt-BR" className={`${bebasNeue.variable} ${inter.variable} ${ibmPlexMono.variable} ${rajdhani.variable}`}>
       <head>
         <script
           type="application/ld+json"
